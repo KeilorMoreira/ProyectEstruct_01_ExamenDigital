@@ -5,8 +5,10 @@
 using namespace std;
 
 
+//************************************************************************************
+//*                            Listas de datos
+//************************************************************************************
 
-//#######################   Listas de datos  #############################
 /*
 TDA examen, lista doble, falta decidir forma de enlace
 con partes(SelecUnica y RespBrebe que son sublistas)
@@ -35,60 +37,49 @@ struct examen
         ant=NULL;
         secciones_ptr=NULL;
     }
-}*primeroExamen;
+}*P_Examen;
+
+struct respuesta
+{
+    bool check;
+    string resp;
+    struct respuesta*sig;
+    respuesta(string r)
+    {
+        check=false;
+        resp=r;
+        sig=NULL;
+    }
+
+}*P_Respuesta;
 
 // Parte del examen, lista con preguntas de Seleccion Unica
-struct pregSelecUnic
+struct pregunta
 {
     int puntosObt;
     int puntosPre;
-    string pregunta; // string con la pregunta
+    string preg; // string con la pregunta
     struct pregSelecUnic*sig;
     struct selecUnica *enlaceSel_ptr;
-    pregSelecUnic(int pO,int pP,string p)
+    // Constructor para seleccion unica
+    pregunta(string p)
     {
-        puntosObt=pO;
-        puntosPre=pP;
-        pregunta=p;
+        preg=p;
         sig=NULL;
         enlaceSel_ptr=NULL;
     }
-}*p_PregSel;
-
-// Parte del examen, lista con preguntas de Respuesta Brebe
-struct pregRespBrebe
-{
-    int puntosObt;
-    int puntosPre;
-    string pregunta; // string con la pregunta
-    struct pregRespBrebe*sig;
-    struct RespBrebe *enlaceRespBre_ptr;
-    pregRespBrebe(int pO,int pP,string p)
+    // Constructor para Resp Breve
+    pregunta(string p,int ptsPre)
     {
-        puntosObt=pO;
-        puntosPre=pP;
-        pregunta=p;
+        preg=p;
+        puntosPre=ptsPre;
         sig=NULL;
-        enlaceRespBre_ptr=NULL;
+        enlaceSel_ptr=NULL;
     }
-}*p_PregRespBre;
+}*P_Pregunta;
 
-//#######################   Sublistas de enlace  #############################
-/*
-Puntero heterogenio de enlace a examen que tiene 2 tipos de listas
-una para las tipo seleccion y otra para las de respuesta brebe.
-*/
-struct partes
-{
-    struct selecUnica*L_selecUnica;
-    struct RespBrebe*L_respBrebe;
-    struct partes*sig;
-    partes()
-    {
-    }
-};
 
-// Puntero heterogenio, sublista de pregSelecUnic
+// Lista
 struct selecUnica
 {
     string descripcion;
@@ -104,17 +95,17 @@ struct selecUnica
         sig=NULL;
         pregSelUni_prt=NULL;
     }
-};
+}*P_SelecUnica;
 
-// Puntero heterogenio, sublista de pregRespBrebe
-struct RespBrebe
+//Lista
+struct respBrebe
 {
     string descripcion;
     int puntos;
     int puntosObt;
-    struct RespBrebe*sig;
+    struct respBrebe*sig;
     struct pregRespBrebe*pregRespBre_prt;
-    RespBrebe(string des,int pts,int ptsO)
+    respBrebe(string des,int pts,int ptsO)
     {
         descripcion=des;
         puntos=pts;
@@ -122,10 +113,45 @@ struct RespBrebe
         sig=NULL;
         pregRespBre_prt=NULL;
     }
+}*P_RespBrebe;
+
+//************************************************************************************
+//*                             Sublistas de enlace
+//************************************************************************************
+
+struct subListaPartes
+{
+    struct selecUnica*L_selecUnica;
+    struct RespBrebe*L_respBrebe;
+    struct partes*sig;
+    subListaPartes()
+    {
+        L_selecUnica=NULL;
+        L_respBrebe=NULL;
+        sig=NULL;
+    }
 };
 
+struct subListaRespuestas
+{
+    struct subListaRespuestas*sig;
+    struct respuesta *respuesta_ptr;
+    subListaRespuestas()
+    {
+        sig=NULL;
+        respuesta_ptr=NULL;
+    }
 
-//####################     Insersiones de datos de Usuario    ########################
+};
+//************************************************************************************
+//*                        Insersiones de datos de Usuario                           *
+//************************************************************************************
+void insertarPregSelecUnica()
+{
+    cout<<L;
+
+}
+
 
 //Cnstr: (string cod,string mater,string grp,string fech,float porc)
 void insertarExamen()
@@ -146,7 +172,11 @@ void insertarExamen()
         else if(eleccion=="3")a="3E";
         else if(eleccion=="4")a="4E";
         else if(eleccion=="5")a="5E";
-        else{system("cls");continue;}
+        else
+        {
+            system("cls");
+            continue;
+        }
         eleccion="continuar";
         system("cls"); // Limpia la pantalla
     }
@@ -166,7 +196,11 @@ void insertarExamen()
         else if(eleccion=="4")b="4C";
         else if(eleccion=="5")b="1S";
         else if(eleccion=="5")b="2S";
-        else{system("cls");continue;}
+        else
+        {
+            system("cls");
+            continue;
+        }
         eleccion="continuar";
         system("cls");
     }
@@ -185,8 +219,16 @@ void insertarExamen()
         else if(eleccion=="3")c="2018";
         else if(eleccion=="4")c="2019";
         else if(eleccion=="5")c="2020";
-        else if(eleccion=="6"){cout<<"Digite: ";getline(cin,c);}
-        else{system("cls");continue;}
+        else if(eleccion=="6")
+        {
+            cout<<"Digite: ";
+            getline(cin,c);
+        }
+        else
+        {
+            system("cls");
+            continue;
+        }
         eleccion="continuar";
         system("cls");
     }
@@ -201,8 +243,16 @@ void insertarExamen()
         if(eleccion=="1")mat="Estructuras de Datos.";
         else if(eleccion=="2")mat="Programación Orientada a Objetos.";
         else if(eleccion=="3")mat="Arquitectura de Computadores.";
-        else if(eleccion=="4"){cout<<"Digite: ";getline(cin,mat);}
-        else{system("cls");continue;}
+        else if(eleccion=="4")
+        {
+            cout<<"Digite: ";
+            getline(cin,mat);
+        }
+        else
+        {
+            system("cls");
+            continue;
+        }
         eleccion="continuar";
         system("cls");
     }
@@ -215,8 +265,16 @@ void insertarExamen()
         getline(cin,eleccion);
         if(eleccion=="1")grup="Grupo 50.";
         else if(eleccion=="2")grup="Grupo 51.";
-        else if(eleccion=="3"){cout<<"Digite: ";getline(cin,grup);}
-        else{system("cls");continue;}
+        else if(eleccion=="3")
+        {
+            cout<<"Digite: ";
+            getline(cin,grup);
+        }
+        else
+        {
+            system("cls");
+            continue;
+        }
         eleccion="continuar";
         system("cls");
     }
@@ -235,44 +293,62 @@ void insertarExamen()
         else if(eleccion=="3")porc=0.15;
         else if(eleccion=="4")porc=0.2;
         else if(eleccion=="5")porc=0.25;
-        else if(eleccion=="6"){cout<<"Digite [ 10% -> 0.1 && 15% -> 0.15 ] : -> ";cin>>porc;}
-        else{system("cls");continue;}
+        else if(eleccion=="6")
+        {
+            cout<<"Digite [ 10% -> 0.1 && 15% -> 0.15 ] : -> ";
+            cin>>porc;
+        }
+        else
+        {
+            system("cls");
+            continue;
+        }
         eleccion="continuar";
         system("cls");
     }
 
     // A crear el nodo.
     cod=a+b+c;
-    cout<<"Fecha de aplicacion [DD/MM/AAAA]: -> ";getline(cin,fecha);
+    cout<<"Fecha de aplicacion [DD/MM/AAAA]: -> ";
+    getline(cin,fecha);
     struct examen*nExamen= new examen(cod,mat,grup,fecha,porc);
-    if(primeroExamen==NULL)
+    if(P_Examen==NULL)
     {
-        primeroExamen=nExamen;
+        P_Examen=nExamen;
     }
     else
     {
-        nExamen->sig=primeroExamen;
-        primeroExamen->ant=nExamen;
-        primeroExamen=nExamen;
+        nExamen->sig=P_Examen;
+        P_Examen->ant=nExamen;
+        P_Examen=nExamen;
     }
 }
 
-//#########################  Funciones de datos predefinidos ########################
+
+//************************************************************************************
+//*                   Insersiones de datos predefinidos
+//************************************************************************************
+
 // Funcion para insertar examenes ejemplo.
 void insertExam(string cod,string mat,string grup,string fecha,float porc)
 {
     struct examen*nExamen= new examen(cod,mat,grup,fecha,porc);
-    if(primeroExamen==NULL)
+    if(P_Examen==NULL)
     {
-        primeroExamen=nExamen;
+        P_Examen=nExamen;
     }
     else
     {
-        nExamen->sig=primeroExamen;
-        primeroExamen->ant=nExamen;
-        primeroExamen=nExamen;
+        nExamen->sig=P_Examen;
+        P_Examen->ant=nExamen;
+        P_Examen=nExamen;
     }
 }
+
+
+//************************************************************************************
+//*                                      Menu                                        *
+//************************************************************************************
 
 int main()
 {
@@ -281,16 +357,20 @@ int main()
     insertExam("codigo1","materia1","grupo1","fecha1",0.1);
     insertExam("codigo2","materia2","grupo2","fecha2",0.2);
     insertExam("codigo3","materia3","grupo3","fecha3",0.3);
-    // Codigo de comprobacion
-    struct examen *t = primeroExamen;
-    while(t!=NULL){
+    insertarExamen(); // insersion por el usuario
+    //Codigo de comprobacion
+    struct examen *t = P_Examen;
+    while(t!=NULL)
+    {
         cout<<"Cod:     "<<t->codigo<<L;
         cout<<"Materia: "<<t->materia<<L;
         cout<<"grupo:   "<<t->grupo<<L;
         cout<<"fecha:   "<<t->fecha<<L;
         cout<<"Porcent: "<<t->porcentje<<L<<L;
-        t = t->sig;
+        t = t->ant;
     }
-    //insertarExamen(); // insersion por el usuario
+
+
+
     return 0;
 }
