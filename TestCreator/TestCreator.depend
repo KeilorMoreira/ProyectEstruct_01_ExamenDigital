@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1475112905 source:c:\users\keilor\documents\semestre ii 2016\estructuras\proyectestruct_01_examendigital\testcreator\main.cpp
+	<iostream>
+	<stdlib.h>
+	<locale.h>
+	<string>
+

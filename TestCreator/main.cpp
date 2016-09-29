@@ -1,7 +1,10 @@
 #include <iostream>
 #include <stdlib.h> // Permite trabajar el cls, pause y otros
 #include <locale.h> // Permite utilizar acentos de un lenguaje especificado en Main()
+#include <string>
 #define L endl
+#define opcResp 10 //Tamaño array de respuestas correctas de Respuesta Brebe e incorrectas de seleccion unica.
+
 using namespace std;
 
 
@@ -13,8 +16,7 @@ using namespace std;
 TDA examen, lista doble, falta decidir forma de enlace
 con partes(SelecUnica y RespBrebe que son sublistas)
 */
-struct examen
-{
+struct examen{
 
     float nota;
     string codigo,materia,grupo,fecha;
@@ -39,8 +41,7 @@ struct examen
     }
 }*P_Examen;
 
-struct respuesta
-{
+struct respuesta{
     bool check;
     string resp;
     struct respuesta*sig;
@@ -54,34 +55,31 @@ struct respuesta
 }*P_Respuesta;
 
 // Parte del examen, lista con preguntas de Seleccion Unica
-struct pregunta
-{
+struct pregunta{
     int puntosObt;
     int puntosPre;
     string preg; // string con la pregunta
-    struct pregSelecUnic*sig;
-    struct selecUnica *enlaceSel_ptr;
+    string rpsta;// Respuesta correcta SeleUnica
+    string opciones[opcResp];
+    struct pregunta*sig;
     // Constructor para seleccion unica
+    pregunta(string p, string re)
+    {
+        preg=p;
+        rpsta=re;
+        sig=NULL;
+    }
+    // Constructor para Resp Breve
     pregunta(string p)
     {
         preg=p;
         sig=NULL;
-        enlaceSel_ptr=NULL;
-    }
-    // Constructor para Resp Breve
-    pregunta(string p,int ptsPre)
-    {
-        preg=p;
-        puntosPre=ptsPre;
-        sig=NULL;
-        enlaceSel_ptr=NULL;
     }
 }*P_Pregunta;
 
 
 // Lista
-struct selecUnica
-{
+struct selecUnica{
     string descripcion;
     int puntos;
     int puntosObt;
@@ -98,8 +96,7 @@ struct selecUnica
 }*P_SelecUnica;
 
 //Lista
-struct respBrebe
-{
+struct respBrebe{
     string descripcion;
     int puntos;
     int puntosObt;
@@ -132,30 +129,63 @@ struct subListaPartes
     }
 };
 
-struct subListaRespuestas
-{
-    struct subListaRespuestas*sig;
-    struct respuesta *respuesta_ptr;
-    subListaRespuestas()
-    {
-        sig=NULL;
-        respuesta_ptr=NULL;
-    }
-
-};
 //************************************************************************************
 //*                        Insersiones de datos de Usuario                           *
 //************************************************************************************
-void insertarPregSelecUnica()
-{
-    cout<<L;
+
+// Inserta pregunta seleccion unica, opciones el numero de opciones de respuesta.
+void insertarPregSelecUnica(int opci){
+    string pre,res,opc;
+    cout<<"Pegunta: ";
+    getline(cin,pre);
+    cout<<"Respuesta Correcta:";
+    getline(cin,res);
+    //Creamos la pregunta
+    struct pregunta*nPregunta= new pregunta(pre,res);
+    nPregunta->opciones[0]=res;//Posicion 0 siempre es la correcta.
+    if(P_Pregunta==NULL)P_Pregunta=nPregunta;
+    else
+    {
+        nPregunta->sig=P_Pregunta;
+        P_Pregunta=nPregunta;
+    }
+    //Agregamos las opciones
+    for(int i=1; i<opci; i++)
+    {
+        cout<<L<<"Resp Incorrecta No "<<i<<" :";
+        getline(cin,opc);
+        nPregunta->opciones[i]=opc;
+        cout<<"<Respuesta Asignada>"<<L;
+    }
+
+    // Impresion de comprobacion.
+    cout<<L<<nPregunta->opciones[0];
+    cout<<L<<nPregunta->opciones[1];
+    cout<<L<<nPregunta->opciones[2];
 
 }
 
+void insertarPregRespBrebe(int resps){
+    string pre,res,opc;
+    cout<<"Pegunta: ";
+    getline(cin,pre);
+    //Creamos la pregunta
+    struct pregunta*nPregunta= new pregunta(pre);
+    if(P_Pregunta==NULL)P_Pregunta=nPregunta;
+    else{nPregunta->sig=P_Pregunta;P_Pregunta=nPregunta;}
+    for (int j=0;j<resps;j++)
+        {
+            cout<<L<<"Respuesta corecta ["<<j+1<<"] : ";
+            getline(cin,res);
+            nPregunta->opciones[j]=res;
+        }
+    //Comprobacion
+    //cout<<L<<nPregunta->opciones[0];
+    //cout<<L<<nPregunta->opciones[1];
+}
 
 //Cnstr: (string cod,string mater,string grp,string fech,float porc)
-void insertarExamen()
-{
+void insertarExamen(){
     string a,b,c,cod,mat,grup,fecha; // Variables
     float porc;
     string eleccion="";
@@ -328,15 +358,38 @@ void insertarExamen()
 //************************************************************************************
 //*                   Insersiones de datos predefinidos
 //************************************************************************************
+void insertUnicSel(string pre,string res,int op,string opc[]){
+    struct pregunta*nPregunta= new pregunta(pre,res);
+    if(P_Pregunta==NULL)P_Pregunta=nPregunta;
+    else
+    {
+        nPregunta->sig=P_Pregunta;
+        P_Pregunta=nPregunta;
+    }
+    nPregunta->opciones[0]=res;//Posicion 0 siempre es la correcta.
+    for(int i=1;i<op+1;i++){
+        nPregunta->opciones[i]=opc[i-1];
+    }
+}
+
+void insertShortAnswer(string pre,int op,string opc[]){
+    struct pregunta*nPregunta= new pregunta(pre);
+    if(P_Pregunta==NULL)P_Pregunta=nPregunta;
+    else
+    {
+        nPregunta->sig=P_Pregunta;
+        P_Pregunta=nPregunta;
+    }
+    for(int i=0;i<op;i++){
+        nPregunta->opciones[i]=opc[i];
+    }
+}
 
 // Funcion para insertar examenes ejemplo.
 void insertExam(string cod,string mat,string grup,string fecha,float porc)
 {
     struct examen*nExamen= new examen(cod,mat,grup,fecha,porc);
-    if(P_Examen==NULL)
-    {
-        P_Examen=nExamen;
-    }
+    if(P_Examen==NULL)P_Examen=nExamen;
     else
     {
         nExamen->sig=P_Examen;
@@ -354,12 +407,12 @@ int main()
 {
     setlocale(LC_ALL, "spanish"); // Asigna lenguaje español como predeterminado.
 
-    insertExam("codigo1","materia1","grupo1","fecha1",0.1);
-    insertExam("codigo2","materia2","grupo2","fecha2",0.2);
-    insertExam("codigo3","materia3","grupo3","fecha3",0.3);
-    insertarExamen(); // insersion por el usuario
+    //insertExam("codigo1","materia1","grupo1","fecha1",0.1);
+    //insertExam("codigo2","materia2","grupo2","fecha2",0.2);
+    //insertExam("codigo3","materia3","grupo3","fecha3",0.3);
+    //insertarExamen(); // insersion por el usuario
     //Codigo de comprobacion
-    struct examen *t = P_Examen;
+    /*struct examen *t = P_Examen;
     while(t!=NULL)
     {
         cout<<"Cod:     "<<t->codigo<<L;
@@ -368,9 +421,11 @@ int main()
         cout<<"fecha:   "<<t->fecha<<L;
         cout<<"Porcent: "<<t->porcentje<<L<<L;
         t = t->ant;
-    }
-
-
-
+    }*/
+    //insertarPregSelecUnica(3);
+    //insertarPregRespBrebe(2);
+    string op[]={"opc1","opc2","opc3"};
+    insertUnicSel("pregunta","correcta",3,op);
+    insertShortAnswer("pregunta",3,op);
     return 0;
 }
