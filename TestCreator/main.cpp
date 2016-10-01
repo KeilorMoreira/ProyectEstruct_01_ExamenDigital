@@ -51,7 +51,7 @@ struct selecUnica
     int puntosObt;
     int cantPreg;
     struct selecUnica*sig;
-    struct preguntaSU *listaPreguntasSU;
+    struct listaPreguntasSU *enlacePreSU;
     selecUnica(string cod,string inst,int ptSec,int cantP)
     {
         codigo=cod;
@@ -59,7 +59,7 @@ struct selecUnica
         puntosSeccion=ptSec;
         cantPreg=cantP;
         sig=NULL;
-        listaPreguntasSU=NULL;
+        enlacePreSU=NULL;
     }
 }*P_SelecUnica;
 
@@ -70,7 +70,7 @@ struct respBrebe
     int puntosObt;
     int cantPreg;
     struct respBrebe*sig;
-    struct preguntaRB*listaPreguntasRB;
+    struct listaPreguntasRB*enlacePreRB;
     respBrebe(string cod,string inst,int ptSec,int cantP)
     {
         codigo=cod;
@@ -78,7 +78,7 @@ struct respBrebe
         puntosSeccion=ptSec;
         cantPreg=cantP;
         sig=NULL;
-        listaPreguntasRB=NULL;
+        enlacePreRB=NULL;
     }
 }*P_RespBrebe;
 
@@ -146,7 +146,7 @@ struct respuestasRB
                 asiertos++;
         }
         porcAsiertos= asiertos*100/digitos;
-        if((porcAsiertos>=75)&&(porcAsiertos!=0))
+        if((porcAsiertos>=80)&&(porcAsiertos!=0))
             contestada=true;
     }
 }*P_RespuestasRB;
@@ -504,17 +504,39 @@ void asignarRB(string codExamen,string codRB)
     }
 }
 
-void asignarPreguntaSU()
+void asignarPreguntaSU(string codSU,string codPreSU)
 {
+    struct selecUnica *tempSU= buscarSU(codSU);//ya visto en clase
+     struct preguntaSU *tempPreSU =buscarPreguntaSU(codPreSU);//ya visto en clase
+
+    if((tempSU!=NULL)&&(tempPreSU!=NULL))
+    {
+        struct listaPreguntasSU *nn= new listaPreguntasSU();
+        nn->enlacePreguntaSU=tempPreSU;//se enlaza con el curso a matricular
+        nn->sig= tempSU->enlacePreSU;//se enlaza con la sublista ya existente del estudiante
+        tempSU->enlacePreSU=nn;// el nn pasa a ser el primer nodo de la sublista matricula
+    }
+
 
 }
 
-void asignarPreguntaRB()
+void asignarPreguntaRB(string codRB,string codPreRB)
 {
+    struct respBrebe *tempRB= buscarRB(codRB);//ya visto en clase
+    struct preguntaRB *tempPreRB =buscarPreguntaRB(codPreRB);//ya visto en clase
+
+    if((tempRB!=NULL)&&(tempPreRB!=NULL))
+    {
+        struct listaPreguntasRB *nn= new listaPreguntasRB();
+        nn->enlacePreguntaRB=tempPreRB;//se enlaza con el curso a matricular
+        nn->sig= tempRB->enlacePreRB;//se enlaza con la sublista ya existente del estudiante
+        tempRB->enlacePreRB=nn;// el nn pasa a ser el primer nodo de la sublista matricula
+    }
 }
 
 void asignarRespuestaRB()
 {
+
 }
 //************************************************************************************
 //*                              Impresiones varias                                        *
@@ -538,37 +560,39 @@ void pedirExamen()
     insertarExamen(cod,mat,fec,por);
 }
 
-void pedirRespuestaCorta()
+void pedirSeccionRC()
 {
-    string cod,mat,enc;
-    int pun;
-    cout<<"Ingrese el codigo de la pregunta"<<L;
+    string cod,enc;
+    int punSec,cantPre;
+    cout<<"Ingrese el codigo de la sección: "<<L;
     cin>>cod;
-    cout<<"Ingrese la materia"<<L;
-    cin>>mat;
-    cout<<"Ingrese en cabesado"<<L;
+    cout<<"Ingrese en cabezado: "<<L;
     cin>>enc;
-    cout<<"Ingrese el puntaje de examen de esta precunta"<<L;
-    cin>>pun;
-    insertarPreguntaRB(cod,mat,enc,pun);
+    cout<<"Ingrese cuantos puntos vale la sección: "<<L;
+    cin>>punSec;
+    cout<<"Cantidad preguntas de la seccion: "<<L;
+    cin>>cantPre;
+    //(string cod,string inst,int ptSec,int cantPre)
+    insertarRB(cod,enc,punSec,cantPre);
 }
 
-void pedirSelecionUnica()
+void pedirSeccionSU()
 {
-    string cod,mat,enc;
-    int pun;
-    cout<<"Ingrese el codigo de la pregunta"<<L;
+    string cod,enc;
+    int Cpun,Cpre;
+    cout<<"Ingrese el codigo de la pregunta: "<<L;
     cin>>cod;
-    cout<<"Ingrese la materia"<<L;
-    cin>>mat;
-    cout<<"Ingrese en cabesado"<<L;
+    cout<<"Ingrese encabezado: "<<L;
     cin>>enc;
-    cout<<"Ingrese el puntaje de examen de esta precunta"<<L;
-    cin>>pun;
-    insertarPreguntaSU(cod,mat,enc,pun);
+    cout<<"Ingrese el puntaje de esta sección: "<<L;
+    cin>>Cpun;
+    cout<<"Ingrese la cantidad de preguntas de la seccion: "<<L;
+    cin>>Cpun;
+    //(string cod,string inst,int ptSec,int cantPre)
+    insertarSU(cod,enc,Cpun,Cpre);
 }
 
-void pedirSolucionRC()
+void pedirPreguntaRB()
 {
     int opc;
     string cod,mat,resp;
@@ -585,6 +609,31 @@ void pedirSolucionRC()
     }
 }
 
+void pedirRespuestaCorta(string cod)
+{
+    string mat,enc;
+    int pun;
+    cout<<"Ingrese la materia"<<L;
+    cin>>mat;
+    cout<<"Ingrese en cabesado"<<L;
+    cin>>enc;
+    cout<<"Ingrese el puntaje de examen de esta pregunta"<<L;
+    cin>>pun;
+    insertarPreguntaRB(cod,mat,enc,pun);
+}
+
+void pedirSelecionUnica(string cod)
+{
+    string mat,enc;
+    int pun;
+    cout<<"Ingrese la materia"<<L;
+    cin>>mat;
+    cout<<"Ingrese en cabesado"<<L;
+    cin>>enc;
+    cout<<"Ingrese el puntaje de examen de esta precunta"<<L;
+    cin>>pun;
+    insertarPreguntaSU(cod,mat,enc,pun);
+}
 
 //************************************************************************************
 //*                       Funciones de administracion de aplicacion                                        *
