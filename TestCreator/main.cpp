@@ -3,6 +3,7 @@
 #include <locale.h> // Permite utilizar acentos de un lenguaje especificado en Main()
 #include <stdio.h> //  Permite utilizar metodo fflush( stdin ) para limpiar la entrada de teclado antes de los getline()
 #include <string>
+#include <cctype> // Permite utilizar toupper()
 #include <sstream>  // Ayuda en las conversiones de int a string utilizando streaming.
 #define L endl
 #define opcResp 10 //Tamaño array de respuestas correctas de Respuesta Brebe e incorrectas de seleccion unica.
@@ -25,8 +26,8 @@ struct examen
     int puntosTotales;
     int puntosObt;
     struct examen*sig,*ant;
-    struct listaSU*listaSU_ptr;
-    struct listaRB*listaRB_ptr;
+    struct listaSU*enlaceSU;
+    struct listaRB*enlaceRB;
     examen(string cod,string mater,string fech,float porc)
     {
         nota=0;
@@ -38,8 +39,8 @@ struct examen
         fecha=fech;
         sig=NULL;
         ant=NULL;
-        listaSU_ptr=NULL;
-        listaRB_ptr=NULL;
+        enlaceSU=NULL;
+        enlaceRB=NULL;
     }
 }*P_Examen;
 
@@ -85,7 +86,7 @@ struct respBrebe
 struct preguntaSU
 {
     string codigo,materia,pregunta;
-    int puntosPre;
+    int puntosPre,puntosObt;
     bool correcto;
     string respuestas[opcResp];
     struct preguntaSU*sig,*ant;
@@ -95,6 +96,7 @@ struct preguntaSU
         materia=mate;
         pregunta=preg;
         puntosPre=pts;
+        puntosObt=0;
         ant=NULL;
         sig=NULL;
     }
@@ -103,7 +105,7 @@ struct preguntaSU
 struct preguntaRB
 {
     string codigo,materia,pregunta;
-    int puntosPre;
+    int puntosPre,puntosObt;
     struct preguntaRB*sig,*ant;
     struct respuestaRB*listaRespuestasRB;
     preguntaRB(string cod, string mate,string preg,int pts)
@@ -112,6 +114,7 @@ struct preguntaRB
         materia=mate;
         pregunta=preg;
         puntosPre=pts;
+        puntosObt=0;
         ant=NULL;
         sig=NULL;
         listaRespuestasRB=NULL;
@@ -121,19 +124,30 @@ struct preguntaRB
 struct respuestasRB
 {
     string codigo; // codigo de la pregunta a la que pertenece.
-    char respuesta[];
+    bool contestada;
+    string respuesta;
     string buffer; // es la variable en la cual se almacena la respuesta del usuario.
     int digitos;  // Corresponde al tamaño del atributo respuesta.
     int asiertos; // Corresponde a la cantidad de coincidencias entre elementos de buffer y respuesta.
     float porcAsiertos; // Es el valor de asiertos de forma porcentual, asiertos*100/digitos. escala 0/100.
     struct respuestasRB*sig;
-    respuestasRB(string cod)
+    respuestasRB(string cod,int digit,string resp)
     {
         codigo=cod;
-        digitos= sizeof respuesta;
+        digitos= digit;
+        respuesta=resp;
         asiertos=0;
         porcAsiertos=0;
         sig=NULL;
+    }
+    void validarRespuesta(){
+        for(int i=0;i<digitos;i++){
+            if(toupper(respuesta[i])==toupper(buffer[i]))
+                asiertos++;
+        }
+        porcAsiertos= asiertos*100/digitos;
+        if((porcAsiertos>=75)&&(porcAsiertos!=0))
+            contestada=true;
     }
 }*P_RespuestasRB;
 
@@ -287,7 +301,7 @@ struct preguntaRB*buscarPreguntaRB(string cod)
 string validarFecha()
 {
     string fecha;
-    int d,m,y, i;
+    int d,m,y;
     bool bisiesto = false;
     cout << "Introduce el dia: ";
     cin >> d;
@@ -296,7 +310,7 @@ string validarFecha()
     cout << "Introduce el anio: ";
     cin >> y;
     //comprobamos si el año es bisiesto
-    if(y%4==0 && y%100!=100 || y%400==0)
+    if(((y%4==0)&&(y%100!=100)) || (y%400==0))
         bisiesto = true;
     //comprobamos que los datos ingresados esten en un rango valido
     if(d>0 && d<32 && m>0 && m<13 && y>0)
@@ -444,29 +458,140 @@ void insertarPreguntaRB(string cod, string mate,string preg,int pts)
     }
 }
 
+void insertarRespuestasRB(string code,string respuesta)
+{
+    int digitos = sizeof respuesta;
+    respuestasRB*tempRRB = new respuestasRB(code,digitos,respuesta);
+
+    if(P_RespuestasRB==NULL)
+    {
+        P_RespuestasRB=tempRRB;
+    }
+    else
+    {
+        tempRRB->sig=P_RespuestasRB;
+        P_RespuestasRB=tempRRB;
+    }
+}
 
 //************************************************************************************
 //*                         Asignadores de punteros
 //************************************************************************************
 
-void asignarSU(int codExamen,int codSU){
+void asignarSU(string codExamen,string codSU)
+{
+    struct examen*tempE=buscarExamen(codExamen);
+    struct selecUnica*tempSU=buscarSU(codSU);
+    if((tempE!=NULL)&&(tempSU!=NULL))
+    {
+        struct listaSU *nn= new listaSU();
+        nn->enlaceSU=tempSU;//se enlaza con el curso a matricular
+        nn->sig= tempE->enlaceSU;//se enlaza con la sublista ya existente del estudiante
+        tempE->enlaceSU=nn;// el nn pasa a ser el primer nodo de la sublista matricula
+    }
+}
 
+void asignarRB(string codExamen,string codRB)
+{
+    struct examen*tempE=buscarExamen(codExamen);
+    struct respBrebe*tempRB=buscarRB(codRB);
+    if((tempE!=NULL)&&(tempRB!=NULL))
+    {
+        struct listaRB *nn= new listaRB();
+        nn->enlaceRB=tempRB;//se enlaza con el curso a matricular
+        nn->sig= tempE->enlaceRB;//se enlaza con la sublista ya existente del estudiante
+        tempE->enlaceRB=nn;// el nn pasa a ser el primer nodo de la sublista matricula
+    }
+}
+
+void asignarPreguntaSU()
+{
 
 }
 
+void asignarPreguntaRB()
+{
+}
 
-
+void asignarRespuestaRB()
+{
+}
 //************************************************************************************
 //*                              Impresiones varias                                        *
 //************************************************************************************
 
+//************************************************************************************
+//*                              Pedir Datos                                         *
+//************************************************************************************
+void pedirExamen()
+{
+    string cod,mat,fec;
+    float por;
+    cout<<"Ingrese el codigo del examen"<<L;
+    cin>>cod;
+    cout<<"Ingrese la materia"<<L;
+    cin>>mat;
+    cout<<"Ingrese la fecha de ejecucion"<<L;
+    cin>>fec;
+    cout<<"Ingrese el valor porcentual del examen(0.2 = 20%)"<<L;
+    cin>>por;
+    insertarExamen(cod,mat,fec,por);
+}
+
+void pedirRespuestaCorta()
+{
+    string cod,mat,enc;
+    int pun;
+    cout<<"Ingrese el codigo de la pregunta"<<L;
+    cin>>cod;
+    cout<<"Ingrese la materia"<<L;
+    cin>>mat;
+    cout<<"Ingrese en cabesado"<<L;
+    cin>>enc;
+    cout<<"Ingrese el puntaje de examen de esta precunta"<<L;
+    cin>>pun;
+    insertarPreguntaRB(cod,mat,enc,pun);
+}
+
+void pedirSelecionUnica()
+{
+    string cod,mat,enc;
+    int pun;
+    cout<<"Ingrese el codigo de la pregunta"<<L;
+    cin>>cod;
+    cout<<"Ingrese la materia"<<L;
+    cin>>mat;
+    cout<<"Ingrese en cabesado"<<L;
+    cin>>enc;
+    cout<<"Ingrese el puntaje de examen de esta precunta"<<L;
+    cin>>pun;
+    insertarPreguntaSU(cod,mat,enc,pun);
+}
+
+void pedirSolucionRC()
+{
+    int opc;
+    string cod,mat,resp;
+    cout<<"Ingrese el codigo de la pregunta: "<<L;
+    cin>>cod;
+    cout<<"Ingrese la materia: "<<L;
+    cin>>mat;
+    cout<<"Cuantas opciones de respuesta: "<<L;
+    cin>>opc;
+    for(int i=0;i<opc;i++){
+        cout<<"Respuesta No "<<i+1<<" :";
+        getline(cin,resp);
+        insertarRespuestasRB(cod,resp);
+    }
+}
 
 
 //************************************************************************************
 //*                       Funciones de administracion de aplicacion                                        *
 //************************************************************************************
 
-void datosPredefinidos(){
+void datosPredefinidos()
+{
     //Examenes
     insertarExamen("Mat1S2016","Matematica","25/09/2016",0.30);
     insertarExamen("Esp1S2016","Español","25/09/2016",0.30);
@@ -475,8 +600,12 @@ void datosPredefinidos(){
     //Partes
     insertarRB("RB-001","Responda lo que se le solicite de forma brebe y concisa. ",30,10);
     insertarRB("RB-002","Responda lo que se le solicite de forma brebe y concisa. ",20,10);
-    insertarSU("RB-003","Responda lo que se le solicite de forma brebe y concisa. ",30,30);
-    insertarSU("RB-004","Responda lo que se le solicite de forma brebe y concisa. ",30,15);
+    insertarSU("SU-001","Responda lo que se le solicite de forma brebe y concisa. ",30,30);
+    insertarSU("SU-002","Responda lo que se le solicite de forma brebe y concisa. ",30,15);
+    asignarRB("Mat1S2016","RB-001");
+    asignarRB("Esp1S2016","RB-002");
+    asignarSU("Mat1S2016","SU-001");
+    asignarSU("Esp1S2016","SU-002");
     //Preguntas SU
     insertarPreguntaSU("codigo","Matematica","Pregunta n1",1);
     insertarPreguntaSU("codigo","Matematica","Pregunta n2",3);
@@ -493,6 +622,8 @@ void datosPredefinidos(){
     insertarPreguntaRB("codigo","Español","Pregunta n3",2);
     insertarPreguntaRB("codigo","Ciencias","Pregunta n4",5);
     insertarPreguntaRB("codigo","Ciencias","Pregunta n5",4);
+    //////////////////
+
 
 }
 
@@ -507,7 +638,7 @@ int main()
     setlocale(LC_ALL, "spanish"); // Asigna lenguaje español como predeterminado.
     //preguntaSU(string cod, string mate,string preg,int pts)
     datosPredefinidos();
-
+    /*
     struct preguntaSU*temp=P_PreguntaSU;
     while(temp!=NULL)
     {
@@ -517,6 +648,15 @@ int main()
         cout<<L<<"Puntos: "<<temp->puntosPre<<L;
         temp=temp->sig;
     }
+    */
+    string resp="respuesta";
+    int digi = sizeof resp;
+    struct respuestasRB*tempR = new respuestasRB("codigo",digi,resp);
+    tempR->buffer="RESSTA";
+    tempR->validarRespuesta();
+    cout<<L<<"Nota Asierto: "<<tempR->porcAsiertos;
+    cout<<L<<"Contestada: "<<tempR->contestada;
+
 
 
 
