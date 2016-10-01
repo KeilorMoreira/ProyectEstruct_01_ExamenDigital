@@ -201,13 +201,15 @@ struct listaRespuestasRB
 struct examen*buscarExamen(string cod)
 {
     struct examen*tempE=P_Examen;
-     if(tempE==NULL)
-      return NULL;
-      do {
-          if(tempE->codigo==cod)
-              return tempE;
-          tempE = tempE->sig;
-      } while(tempE!=NULL);
+    if(tempE==NULL)
+        return NULL;
+    do
+    {
+        if(tempE->codigo==cod)
+            return tempE;
+        tempE = tempE->sig;
+    }
+    while(tempE!=NULL);
 
     return NULL;
 };
@@ -215,13 +217,15 @@ struct examen*buscarExamen(string cod)
 struct selecUnica*buscarSU(string cod)
 {
     struct selecUnica*tempSU=P_SelecUnica;
-     if(tempSU==NULL)
-      return NULL;
-      do {
-          if(tempSU->codigo==cod)
-              return tempSU;
-          tempSU = tempSU->sig;
-      } while( tempSU!=NULL);
+    if(tempSU==NULL)
+        return NULL;
+    do
+    {
+        if(tempSU->codigo==cod)
+            return tempSU;
+        tempSU = tempSU->sig;
+    }
+    while( tempSU!=NULL);
 
     return NULL;
 };
@@ -229,39 +233,45 @@ struct selecUnica*buscarSU(string cod)
 struct respBrebe*buscarRB(string cod)
 {
     respBrebe*tempRB=P_RespBrebe;
-     if(tempRB==NULL)
-      return NULL;
-      do {
-          if(tempRB->codigo==cod)
-              return tempRB;
-          tempRB = tempRB->sig;
-      } while(tempRB!=NULL);
+    if(tempRB==NULL)
+        return NULL;
+    do
+    {
+        if(tempRB->codigo==cod)
+            return tempRB;
+        tempRB = tempRB->sig;
+    }
+    while(tempRB!=NULL);
     return NULL;
 };
 
 struct preguntaSU*buscarPreguntaSU(string cod)
 {
     struct preguntaSU*tempPreSU=P_PreguntaSU;
-     if(tempPreSU==NULL)
-      return NULL;
-      do {
-          if(tempPreSU->codigo==cod)
-              return tempPreSU;
-          tempPreSU = tempPreSU->sig;
-      } while( tempPreSU!=NULL);
+    if(tempPreSU==NULL)
+        return NULL;
+    do
+    {
+        if(tempPreSU->codigo==cod)
+            return tempPreSU;
+        tempPreSU = tempPreSU->sig;
+    }
+    while( tempPreSU!=NULL);
     return NULL;
 };
 
 struct preguntaRB*buscarPreguntaRB(string cod)
 {
     struct preguntaRB*tempPreRB=P_PreguntaRB;
-     if(tempPreRB==NULL)
-      return NULL;
-      do {
-          if(tempPreRB->codigo==cod)
-              return tempPreRB;
-          tempPreRB = tempPreRB->sig;
-      } while(tempPreRB!=NULL);
+    if(tempPreRB==NULL)
+        return NULL;
+    do
+    {
+        if(tempPreRB->codigo==cod)
+            return tempPreRB;
+        tempPreRB = tempPreRB->sig;
+    }
+    while(tempPreRB!=NULL);
 
     return NULL;
 };
@@ -323,30 +333,113 @@ string validarFecha()
 //*                        Insersiones datos a listas                           *
 //************************************************************************************
 
-void insertarExamen()
+void insertarExamen(string cod,string materia,string fecha,float porcentaje)
 {
     // examen(string cod,string mater,string fech,float porc)
-
-
-
-
-
+    struct examen*nExamen= new examen(cod,materia,fecha,porcentaje);
+    if(P_Examen==NULL)P_Examen=nExamen;
+    else
+    {
+        nExamen->sig=P_Examen;
+        P_Examen->ant=nExamen;
+        P_Examen=nExamen;
+    }
 }
 
-void insertarSU()
+void insertarSU(string inst,int ptSec,int cantPre)
 {
+    // selecUnica(string inst,int ptSec,int cantP)
+    struct selecUnica*nnSU= new selecUnica(inst,ptSec,cantPre);
+    if(P_SelecUnica==NULL)P_SelecUnica=nnSU;
+    else
+    {
+        nnSU->sig=P_SelecUnica;
+        P_SelecUnica=nnSU;
+    }
 }
 
-void insertarRB()
+void insertarRB(string inst,int ptSec,int cantPre)
 {
+    // respBrebe(string inst,int ptSec,int cantP)
+    struct respBrebe*nnRB= new respBrebe(inst,ptSec,cantPre);
+    if(P_RespBrebe==NULL)P_RespBrebe=nnRB;
+    else
+    {
+        nnRB->sig=P_RespBrebe;
+        P_RespBrebe=nnRB;
+    }
 }
 
-void insertarPreguntaSU()
+void insertarPreguntaSU(string cod, string mate,string preg,int pts)
 {
+    //preguntaSU(string cod, string mate,string preg,int pts)
+    struct preguntaSU*nnPreSU=new preguntaSU(cod,mate,preg,pts);
+    if(P_PreguntaSU==NULL)//si la lista esta vacia
+        P_PreguntaSU=nnPreSU;
+    else
+    {
+        struct preguntaSU * actual=P_PreguntaSU;
+        struct preguntaSU * ant=NULL;
+        while((actual !=NULL)&&(pts < actual->puntosPre))
+        {
+            ant=actual;
+            actual =actual->sig;
+        }
+        if(actual ==NULL)//se inserta al final de la lista
+        {
+            ant->sig=nnPreSU;
+            nnPreSU->ant=ant;
+        }
+        else if(ant==NULL)//se inserta al inicio de la lista
+        {
+            nnPreSU->sig=P_PreguntaSU;
+            P_PreguntaSU->ant=nnPreSU;
+            P_PreguntaSU=nnPreSU;
+        }
+        else //insertar en medio
+        {
+            ant->sig=nnPreSU;
+            actual->ant=nnPreSU;
+            nnPreSU->sig=actual;
+            nnPreSU->ant=ant;
+        }
+    }
 }
 
-void insertarPreguntaRB()
+void insertarPreguntaRB(string cod, string mate,string preg,int pts)
 {
+    //preguntaRB(string cod, string mate,string preg,int pts)
+    struct preguntaRB*nnPreRB=new preguntaRB(cod,mate,preg,pts);
+    if(P_PreguntaRB==NULL)//si la lista esta vacia
+        P_PreguntaRB=nnPreRB;
+    else
+    {
+        struct preguntaRB * actual=P_PreguntaRB;
+        struct preguntaRB * ant=NULL;
+        while((actual !=NULL)&&(pts < actual->puntosPre))
+        {
+            ant=actual;
+            actual =actual->sig;
+        }
+        if(actual ==NULL)//se inserta al final de la lista
+        {
+            ant->sig=nnPreRB;
+            nnPreRB->ant=ant;
+        }
+        else if(ant==NULL)//se inserta al inicio de la lista
+        {
+            nnPreRB->sig=P_PreguntaRB;
+            P_PreguntaRB->ant=nnPreRB;
+            P_PreguntaRB=nnPreRB;
+        }
+        else //insertar en medio
+        {
+            ant->sig=nnPreRB;
+            actual->ant=nnPreRB;
+            nnPreRB->sig=actual;
+            nnPreRB->ant=ant;
+        }
+    }
 }
 
 
@@ -376,7 +469,22 @@ void insertarPreguntaRB()
 int main()
 {
     setlocale(LC_ALL, "spanish"); // Asigna lenguaje español como predeterminado.
+    //preguntaSU(string cod, string mate,string preg,int pts)
+    insertarPreguntaSU("codigo","Matematica","Pregunta n1",1);
+    insertarPreguntaSU("codigo","Matematica","Pregunta n2",3);
+    insertarPreguntaSU("codigo","Matematica","Pregunta n3",2);
+    insertarPreguntaSU("codigo","Matematica","Pregunta n4",5);
+    insertarPreguntaSU("codigo","Matematica","Pregunta n5",4);
 
+    struct preguntaSU*temp=P_PreguntaSU;
+    while(temp!=NULL)
+    {
+        cout<<L<<"Codigo: "<<temp->codigo;
+        cout<<L<<"Materia: "<<temp->materia;
+        cout<<L<<"Pregunta: "<<temp->pregunta;
+        cout<<L<<"Puntos: "<<temp->puntosPre<<L;
+        temp=temp->sig;
+    }
 
 
 
