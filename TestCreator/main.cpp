@@ -51,8 +51,9 @@ struct selecUnica
     int cantPreg;
     struct selecUnica*sig;
     struct preguntaSU *listaPreguntasSU;
-    selecUnica(string inst,int ptSec,int cantP)
+    selecUnica(string cod,string inst,int ptSec,int cantP)
     {
+        codigo=cod;
         instrucciones=inst;
         puntosSeccion=ptSec;
         cantPreg=cantP;
@@ -69,8 +70,9 @@ struct respBrebe
     int cantPreg;
     struct respBrebe*sig;
     struct preguntaRB*listaPreguntasRB;
-    respBrebe(string inst,int ptSec,int cantP)
+    respBrebe(string cod,string inst,int ptSec,int cantP)
     {
+        codigo=cod;
         instrucciones=inst;
         puntosSeccion=ptSec;
         cantPreg=cantP;
@@ -346,10 +348,10 @@ void insertarExamen(string cod,string materia,string fecha,float porcentaje)
     }
 }
 
-void insertarSU(string inst,int ptSec,int cantPre)
+void insertarSU(string cod,string inst,int ptSec,int cantPre)
 {
     // selecUnica(string inst,int ptSec,int cantP)
-    struct selecUnica*nnSU= new selecUnica(inst,ptSec,cantPre);
+    struct selecUnica*nnSU= new selecUnica(cod,inst,ptSec,cantPre);
     if(P_SelecUnica==NULL)P_SelecUnica=nnSU;
     else
     {
@@ -358,10 +360,10 @@ void insertarSU(string inst,int ptSec,int cantPre)
     }
 }
 
-void insertarRB(string inst,int ptSec,int cantPre)
+void insertarRB(string cod,string inst,int ptSec,int cantPre)
 {
-    // respBrebe(string inst,int ptSec,int cantP)
-    struct respBrebe*nnRB= new respBrebe(inst,ptSec,cantPre);
+    // respBrebe(string cod,string inst,int ptSec,int cantP)
+    struct respBrebe*nnRB= new respBrebe(cod,inst,ptSec,cantPre);
     if(P_RespBrebe==NULL)P_RespBrebe=nnRB;
     else
     {
@@ -447,6 +449,10 @@ void insertarPreguntaRB(string cod, string mate,string preg,int pts)
 //*                         Asignadores de punteros
 //************************************************************************************
 
+void asignarSU(int codExamen,int codSU){
+
+
+}
 
 
 
@@ -460,6 +466,36 @@ void insertarPreguntaRB(string cod, string mate,string preg,int pts)
 //*                       Funciones de administracion de aplicacion                                        *
 //************************************************************************************
 
+void datosPredefinidos(){
+    //Examenes
+    insertarExamen("Mat1S2016","Matematica","25/09/2016",0.30);
+    insertarExamen("Esp1S2016","Español","25/09/2016",0.30);
+    insertarExamen("Cie1S2016","Ciencias","25/09/2016",0.30);
+    insertarExamen("Est1S2016","Estudios Sociales","25/09/2016",0.30);
+    //Partes
+    insertarRB("RB-001","Responda lo que se le solicite de forma brebe y concisa. ",30,10);
+    insertarRB("RB-002","Responda lo que se le solicite de forma brebe y concisa. ",20,10);
+    insertarSU("RB-003","Responda lo que se le solicite de forma brebe y concisa. ",30,30);
+    insertarSU("RB-004","Responda lo que se le solicite de forma brebe y concisa. ",30,15);
+    //Preguntas SU
+    insertarPreguntaSU("codigo","Matematica","Pregunta n1",1);
+    insertarPreguntaSU("codigo","Matematica","Pregunta n2",3);
+    insertarPreguntaSU("codigo","Español","Pregunta n1",2);
+    insertarPreguntaSU("codigo","Español","Pregunta n2",5);
+    insertarPreguntaSU("codigo","Español","Pregunta n3",4);
+    insertarPreguntaSU("codigo","Estudios Sociales","Pregunta n1",3);
+    insertarPreguntaSU("codigo","Estudios Sociales","Pregunta n2",2);
+    insertarPreguntaSU("codigo","Ciencias","Pregunta n1",5);
+    insertarPreguntaSU("codigo","Ciencias","Pregunta n2",4);
+    //Preguntas RB
+    insertarPreguntaRB("codigo","Matematica","Pregunta n1",1);
+    insertarPreguntaRB("codigo","Matematica","Pregunta n2",3);
+    insertarPreguntaRB("codigo","Español","Pregunta n3",2);
+    insertarPreguntaRB("codigo","Ciencias","Pregunta n4",5);
+    insertarPreguntaRB("codigo","Ciencias","Pregunta n5",4);
+
+}
+
 //************************************************************************************
 //*                        Funciones de Usuario estandard                            *
 //************************************************************************************
@@ -470,11 +506,7 @@ int main()
 {
     setlocale(LC_ALL, "spanish"); // Asigna lenguaje español como predeterminado.
     //preguntaSU(string cod, string mate,string preg,int pts)
-    insertarPreguntaSU("codigo","Matematica","Pregunta n1",1);
-    insertarPreguntaSU("codigo","Matematica","Pregunta n2",3);
-    insertarPreguntaSU("codigo","Matematica","Pregunta n3",2);
-    insertarPreguntaSU("codigo","Matematica","Pregunta n4",5);
-    insertarPreguntaSU("codigo","Matematica","Pregunta n5",4);
+    datosPredefinidos();
 
     struct preguntaSU*temp=P_PreguntaSU;
     while(temp!=NULL)
