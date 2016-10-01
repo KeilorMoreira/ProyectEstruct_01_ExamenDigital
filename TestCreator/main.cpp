@@ -16,10 +16,6 @@ using namespace std;
 //*                       Estructuras abstractas: Listas de datos
 //************************************************************************************
 
-/*
-TDA examen, lista doble, falta decidir forma de enlace
-con partes(SelecUnica y RespBrebe que son sublistas)
-*/
 struct examen
 {
 
@@ -47,8 +43,6 @@ struct examen
     }
 }*P_Examen;
 
-
-// Lista
 struct selecUnica
 {
     string instrucciones,codigo;
@@ -67,7 +61,6 @@ struct selecUnica
     }
 }*P_SelecUnica;
 
-//Lista
 struct respBrebe
 {
     string instrucciones,codigo;
@@ -90,14 +83,16 @@ struct respBrebe
 struct preguntaSU
 {
     string codigo,materia,pregunta;
+    int puntosPre;
     bool correcto;
     string respuestas[opcResp];
     struct preguntaSU*sig,*ant;
-    preguntaSU(string cod, string mate,string preg)
+    preguntaSU(string cod, string mate,string preg,int pts)
     {
         codigo=cod;
         materia=mate;
         pregunta=preg;
+        puntosPre=pts;
         ant=NULL;
         sig=NULL;
     }
@@ -106,20 +101,23 @@ struct preguntaSU
 struct preguntaRB
 {
     string codigo,materia,pregunta;
+    int puntosPre;
     struct preguntaRB*sig,*ant;
     struct respuestaRB*listaRespuestasRB;
-    preguntaRB(string cod, string mate,string preg)
+    preguntaRB(string cod, string mate,string preg,int pts)
     {
         codigo=cod;
         materia=mate;
         pregunta=preg;
+        puntosPre=pts;
         ant=NULL;
         sig=NULL;
         listaRespuestasRB=NULL;
     }
 }*P_PreguntaRB;
 
-struct respuestasRB{
+struct respuestasRB
+{
     string codigo; // codigo de la pregunta a la que pertenece.
     char respuesta[];
     string buffer; // es la variable en la cual se almacena la respuesta del usuario.
@@ -127,7 +125,8 @@ struct respuestasRB{
     int asiertos; // Corresponde a la cantidad de coincidencias entre elementos de buffer y respuesta.
     float porcAsiertos; // Es el valor de asiertos de forma porcentual, asiertos*100/digitos. escala 0/100.
     struct respuestasRB*sig;
-    respuestasRB(string cod){
+    respuestasRB(string cod)
+    {
         codigo=cod;
         digitos= sizeof respuesta;
         asiertos=0;
@@ -166,7 +165,8 @@ struct listaPreguntasSU
 {
     struct preguntaSU*enlacePreguntaSU;
     struct listaPreguntasSU*sig;
-    listaPreguntasSU(){
+    listaPreguntasSU()
+    {
         enlacePreguntaSU=NULL;
         sig=NULL;
     }
@@ -176,7 +176,8 @@ struct listaPreguntasRB
 {
     struct preguntaRB*enlacePreguntaRB;
     struct listaPreguntasRB*sig;
-    listaPreguntasRB(){
+    listaPreguntasRB()
+    {
         enlacePreguntaRB=NULL;
         sig=NULL;
     }
@@ -186,7 +187,8 @@ struct listaRespuestasRB
 {
     struct respuestasRB*enlaceRespuestasRB;
     struct listaRespuestasRB*sig;
-    listaRespuestasRB(){
+    listaRespuestasRB()
+    {
         enlaceRespuestasRB=NULL;
         sig=NULL;
     }
@@ -196,32 +198,70 @@ struct listaRespuestasRB
 //*                        Buscadores de nodos de listas                             *
 //************************************************************************************
 
-struct examen*buscarExamen()
+struct examen*buscarExamen(string cod)
 {
+    struct examen*tempE=P_Examen;
+     if(tempE==NULL)
+      return NULL;
+      do {
+          if(tempE->codigo==cod)
+              return tempE;
+          tempE = tempE->sig;
+      } while(tempE!=NULL);
 
     return NULL;
 };
 
-struct selecUnica*buscarSU()
+struct selecUnica*buscarSU(string cod)
 {
+    struct selecUnica*tempSU=P_SelecUnica;
+     if(tempSU==NULL)
+      return NULL;
+      do {
+          if(tempSU->codigo==cod)
+              return tempSU;
+          tempSU = tempSU->sig;
+      } while( tempSU!=NULL);
 
     return NULL;
 };
 
-struct respBrebe*buscarRB()
+struct respBrebe*buscarRB(string cod)
 {
-
+    respBrebe*tempRB=P_RespBrebe;
+     if(tempRB==NULL)
+      return NULL;
+      do {
+          if(tempRB->codigo==cod)
+              return tempRB;
+          tempRB = tempRB->sig;
+      } while(tempRB!=NULL);
     return NULL;
 };
 
-struct preguntaSU*buscarPreguntaSU()
+struct preguntaSU*buscarPreguntaSU(string cod)
 {
-
+    struct preguntaSU*tempPreSU=P_PreguntaSU;
+     if(tempPreSU==NULL)
+      return NULL;
+      do {
+          if(tempPreSU->codigo==cod)
+              return tempPreSU;
+          tempPreSU = tempPreSU->sig;
+      } while( tempPreSU!=NULL);
     return NULL;
 };
 
-struct preguntaRB*buscarPreguntaRB()
+struct preguntaRB*buscarPreguntaRB(string cod)
 {
+    struct preguntaRB*tempPreRB=P_PreguntaRB;
+     if(tempPreRB==NULL)
+      return NULL;
+      do {
+          if(tempPreRB->codigo==cod)
+              return tempPreRB;
+          tempPreRB = tempPreRB->sig;
+      } while(tempPreRB!=NULL);
 
     return NULL;
 };
@@ -232,7 +272,8 @@ struct preguntaRB*buscarPreguntaRB()
 //************************************************************************************
 
 // URL Fuente: http://diagramas-de-flujo.blogspot.com/2013/03/validar-fecha-ingresada-codigo-c.html
-string validarFecha(){
+string validarFecha()
+{
     string fecha;
     int d,m,y, i;
     bool bisiesto = false;
@@ -284,6 +325,11 @@ string validarFecha(){
 
 void insertarExamen()
 {
+    // examen(string cod,string mater,string fech,float porc)
+
+
+
+
 
 }
 
@@ -329,7 +375,7 @@ void insertarPreguntaRB()
 
 int main()
 {
-    //setlocale(LC_ALL, "spanish"); // Asigna lenguaje español como predeterminado.
+    setlocale(LC_ALL, "spanish"); // Asigna lenguaje español como predeterminado.
 
 
 
