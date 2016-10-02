@@ -555,17 +555,17 @@ void asignarPreguntaRB(string codRB,string codPreRB)
 void asignarRespuestaRB(string codPreRB)
 {
     struct preguntaRB *tempPreRB= buscarPreguntaRB(codPreRB);//ya visto en clase
-
-    struct respuestasRB *tempResp =buscarRespuestaRB(codPreRB);//ya visto en clase
-
-    if((tempPreRB!=NULL)&&(tempResp!=NULL))
-    {
-        struct listaRespuestasRB *nn= new listaRespuestasRB();
-        nn->enlaceRespuestasRB=tempResp;//se enlaza con el curso a matricular
-        nn->sig= tempPreRB->enlaceRespuestaRB;//se enlaza con la sublista ya existente del estudiante
-        tempPreRB->enlaceRespuestaRB=nn;// el nn pasa a ser el primer nodo de la sublista matricula
+    struct respuestasRB *tempResp = P_RespuestasRB;//ya visto en clase
+    while(tempResp!=NULL){
+        if((tempPreRB!=NULL)&&(tempResp->codigo==codPreRB))
+            {
+                struct listaRespuestasRB *nn= new listaRespuestasRB();
+                nn->enlaceRespuestasRB=tempResp;//se enlaza con el curso a matricular
+                nn->sig= tempPreRB->enlaceRespuestaRB;//se enlaza con la sublista ya existente del estudiante
+                tempPreRB->enlaceRespuestaRB=nn;// el nn pasa a ser el primer nodo de la sublista matricula
+            }
+            tempPreRB=tempPreRB->sig;
     }
-
 }
 //************************************************************************************
 //*                              Impresiones varias                                        *
@@ -688,6 +688,35 @@ void pedirSelecionUnica(string cod)
 //*                       Funciones de administracion de aplicacion                                        *
 //************************************************************************************
 
+void validarPuntosExamen(){
+
+    struct examen*tempExamen = P_Examen; // Entramos a lista de Examenes
+    while(tempExamen!=NULL){
+        struct listaSU*tempSU=tempExamen->enlaceSU;// Entramos a lista Seleccion Unica
+        while(tempSU!=NULL){
+            tempExamen->puntosObt+=tempSU->enlaceSU->puntosSeccion;
+            struct listaPreguntasSU* tempPreSU = tempSU->enlaceSU->enlacePreSU; // Entramos a la lista preguntas Seleccion Unica
+            while(tempPreSU!=NULL){
+            tempSU->enlaceSU->puntosSeccion+=tempPreSU->enlacePreguntaSU->puntosPre;
+            tempPreSU=tempPreSU->sig;
+            }
+        tempSU=tempSU->sig;
+        }
+        //
+        struct listaRB*tempRB=tempExamen->enlaceRB;// Entramos a lista Seleccion Unica
+        while(tempRB!=NULL){
+            tempExamen->puntosObt+=tempRB->enlaceRB->puntosSeccion;
+            struct listaPreguntasRB* tempPreRB = tempRB->enlaceRB->enlacePreRB; // Entramos a la lista preguntas Seleccion Unica
+            while(tempPreRB!=NULL){
+            tempRB->enlaceRB->puntosSeccion+=tempPreRB->enlacePreguntaRB->puntosPre;
+            tempPreRB=tempPreRB->sig;
+            }
+        tempRB=tempRB->sig;
+        }
+        tempExamen->sig=tempExamen;
+    }
+}
+
 void datosPredefinidos()
 {
     //Examenes
@@ -705,22 +734,36 @@ void datosPredefinidos()
     asignarSU("Mat1S2016","SU-001");
     asignarSU("Esp1S2016","SU-002");
     //Preguntas SU
-    insertarPreguntaSU("codigo","Matematica","Pregunta n1",1);
-    insertarPreguntaSU("codigo","Matematica","Pregunta n2",3);
-    insertarPreguntaSU("codigo","Español","Pregunta n1",2);
-    insertarPreguntaSU("codigo","Español","Pregunta n2",5);
-    insertarPreguntaSU("codigo","Español","Pregunta n3",4);
-    insertarPreguntaSU("codigo","Estudios Sociales","Pregunta n1",3);
-    insertarPreguntaSU("codigo","Estudios Sociales","Pregunta n2",2);
-    insertarPreguntaSU("codigo","Ciencias","Pregunta n1",5);
-    insertarPreguntaSU("codigo","Ciencias","Pregunta n2",4);
+    insertarPreguntaSU("preSU001","Matematica","Pregunta n1",1);
+    insertarPreguntaSU("preSU002","Matematica","Pregunta n2",3);
+    insertarPreguntaSU("preSU003","Español","Pregunta n1",2);
+    insertarPreguntaSU("preSU004","Español","Pregunta n2",5);
+    insertarPreguntaSU("preSU005","Español","Pregunta n3",4);
+    insertarPreguntaSU("preSU006","Estudios Sociales","Pregunta n1",3);
+    insertarPreguntaSU("preSU007","Estudios Sociales","Pregunta n2",2);
+    insertarPreguntaSU("preSU008","Ciencias","Pregunta n1",5);
+    insertarPreguntaSU("preSU009","Ciencias","Pregunta n2",4);
+    asignarPreguntaSU("SU-001","preSU001");
+    asignarPreguntaSU("SU-001","preSU002");
+    asignarPreguntaSU("SU-001","preSU001");
+    asignarPreguntaSU("SU-002","preSU003");
+    asignarPreguntaSU("SU-002","preSU004");
+    asignarPreguntaSU("SU-002","preSU005");
+    asignarPreguntaSU("SU-002","preSU006");
     //Preguntas RB
-    insertarPreguntaRB("codigo","Matematica","Pregunta n1",1);
-    insertarPreguntaRB("codigo","Matematica","Pregunta n2",3);
-    insertarPreguntaRB("codigo","Español","Pregunta n3",2);
-    insertarPreguntaRB("codigo","Ciencias","Pregunta n4",5);
-    insertarPreguntaRB("codigo","Ciencias","Pregunta n5",4);
-    //////////////////
+    insertarPreguntaRB("preRB001","Matematica","Pregunta n1",1);
+    insertarPreguntaRB("preRB002","Matematica","Pregunta n2",3);
+    insertarPreguntaRB("preRB003","Español","Pregunta n3",2);
+    insertarPreguntaRB("preRB004","Ciencias","Pregunta n4",5);
+    insertarPreguntaRB("preRB005","Ciencias","Pregunta n5",4);
+    asignarPreguntaSU("RB-001","preRB001");
+    asignarPreguntaSU("RB-001","preRB002");
+    asignarPreguntaSU("RB-001","preRB001");
+    asignarPreguntaSU("RB-002","preRB003");
+    asignarPreguntaSU("RB-002","preRB004");
+    asignarPreguntaSU("RB-002","preRB005");
+    asignarPreguntaSU("RB-002","preRB006");
+    //
 
 
 }
@@ -761,6 +804,7 @@ void crearParteSU(struct examen*temp)
         }
     }
 }
+
 void crearParteRC(struct examen*temp)
 {
     int cant,ptr;
@@ -791,8 +835,8 @@ void crearParteRC(struct examen*temp)
             for(int i=0; i<ptr; i++)
             {
                 pedirSolucionRC();
-                //asignarRespuestaRB();
             }
+            asignarRespuestaRB(sN);
         }
     }
 }
@@ -864,6 +908,11 @@ void modifiCarExamen(string code)
 //*                        Funciones de Usuario estandard                            *
 //************************************************************************************
 
+void resolverExamen(string cod){
+
+
+
+}
 
 
 int main()
