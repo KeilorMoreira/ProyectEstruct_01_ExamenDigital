@@ -841,69 +841,71 @@ void crearParteRC(struct examen*temp)
     }
 }
 
-void crearExamen()
-{
+void crearExamen(){
     cout<<L;
     pedirExamen();
-    int cant,ptr;
-    struct selecUnica*tem=P_SelecUnica;
-    struct respBrebe*tempor=P_RespBrebe;
-    struct preguntaSU*tempo;
-    struct preguntaRB*tempo2;
-    string eleccion = "", sN,respu;
-    cout<<L<<"Insertando secciones\n[1] Selecion Unica\n[2] Respuesta Brebe\n";
-    fflush( stdin );
-    getline(cin,eleccion);
-    if(eleccion=="1")
-    {
-        crearParteSU(P_Examen);
-    }
-    else if(eleccion=="2")
-    {
-        crearParteRC(P_Examen);
+    string eleccion = "", sN="s";
+    while(sN=="S"|sN=="s"){
+        cout<<L<<"Insertando secciones\n[1] Selecion Unica\n[2] Respuesta Brebe\n";
+        fflush( stdin );
+        getline(cin,eleccion);
+        if(eleccion=="1"){
+            crearParteSU(P_Examen);
+        }
+        else if(eleccion=="2"){
+            crearParteRC(P_Examen);
+        }
+        cout<<"\mDesea agregar mas partes (s=Si o S=Si) o (n=No o N=No)";
+        fflush( stdin );
+        cin>>sN;
     }
 }
-
-void modifiCarExamen(string code)
-{
+void modifiCarExamen(string code){
     struct examen*tem2 = P_Examen;
-
-    while(tem2->sig!=NULL)
-    {
+    while(tem2->sig!=NULL){
         cout<<"   Codigo: "<<tem2->codigo<<"   Materia: "<<tem2->materia<<"   Fecha: "<<tem2->fecha<<"   Porcentaje: "<<tem2->porcentaje;
         tem2=tem2->sig;
     }
     string x,f,c;
     float p;
     buscarExamen(code);
-    if(buscarExamen(code)!=NULL)
-    {
-        cout<<"1.Fecha de ejecusion\n2.Porcentaje\n3.Codigo de examen\n4.";
+    if(buscarExamen(code)!=NULL){
+        cout<<"1.Fecha de ejecusion\n2.Porcentaje\n3.Codigo de examen\n4.Agragar una nueva parte";
         fflush( stdin );
         cin>>x;
-        if(x=="1")
-        {
+        if(x=="1"){
             cout<<"Ingrese la nueva Fecha: ";
             fflush( stdin );
             cin>>f;
             buscarExamen(code)->fecha=f;
         }
-        if(x=="2")
-        {
+        if(x=="2"){
             cout<<"Ingrese el nuevo Porcetaje: ";
             fflush( stdin );
             cin>>p;
             buscarExamen(code)->porcentaje=p;
         }
-        if(x=="3")
-        {
+        if(x=="3"){
             cout<<"Ingrese el nuevo Codigo: ";
             fflush( stdin );
             cin>>c;
             buscarExamen(code)->codigo=c;
         }
+        if(x=="4"){
+            string eleccion = "", sN,respu;
+            cout<<L<<"Insertando secciones\n[1] Selecion Unica\n[2] Respuesta Brebe\n";
+            fflush( stdin );
+            getline(cin,eleccion);
+            if(eleccion=="1"){
+                crearParteSU(buscarExamen(code));
+            }
+            else if(eleccion=="2"){
+                crearParteRC(buscarExamen(code));
+            }
+        }
     }
 }
+
 //************************************************************************************
 //*                        Funciones de Usuario estandard                            *
 //************************************************************************************
