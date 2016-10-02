@@ -1,0 +1,10 @@
+# depslib dependency file v1.0
+1475420093 source:c:\users\keilor\documents\semestre ii 2016\estructuras\proyectestruct_01_examendigital\examencreador\main.cpp
+	<iostream>
+	<stdlib.h>
+	<locale.h>
+	<stdio.h>
+	<string>
+	<cctype>
+	<sstream>
+
