@@ -52,11 +52,11 @@ struct selecUnica
     int cantPreg;
     struct selecUnica*sig;
     struct listaPreguntasSU *enlacePreSU;
-    selecUnica(string cod,string inst,int ptSec,int cantP)
+    selecUnica(string cod,string inst,int cantP)
     {
         codigo=cod;
         instrucciones=inst;
-        puntosSeccion=ptSec;
+        puntosSeccion=0;
         cantPreg=cantP;
         sig=NULL;
         enlacePreSU=NULL;
@@ -71,17 +71,16 @@ struct respBrebe
     int cantPreg;
     struct respBrebe*sig;
     struct listaPreguntasRB*enlacePreRB;
-    respBrebe(string cod,string inst,int ptSec,int cantP)
+    respBrebe(string cod,string inst,int cantP)
     {
         codigo=cod;
         instrucciones=inst;
-        puntosSeccion=ptSec;
+        puntosSeccion=0;
         cantPreg=cantP;
         sig=NULL;
         enlacePreRB=NULL;
     }
 }*P_RespBrebe;
-
 
 struct preguntaSU
 {
@@ -380,10 +379,10 @@ void insertarExamen(string cod,string materia,string fecha,float porcentaje)
     }
 }
 
-void insertarSU(string cod,string inst,int ptSec,int cantPre)
+void insertarSU(string cod,string inst,int cantPre)
 {
     // selecUnica(string inst,int ptSec,int cantP)
-    struct selecUnica*nnSU= new selecUnica(cod,inst,ptSec,cantPre);
+    struct selecUnica*nnSU= new selecUnica(cod,inst,cantPre);
     if(P_SelecUnica==NULL)P_SelecUnica=nnSU;
     else
     {
@@ -392,10 +391,10 @@ void insertarSU(string cod,string inst,int ptSec,int cantPre)
     }
 }
 
-void insertarRB(string cod,string inst,int ptSec,int cantPre)
+void insertarRB(string cod,string inst,int cantPre)
 {
     // respBrebe(string cod,string inst,int ptSec,int cantP)
-    struct respBrebe*nnRB= new respBrebe(cod,inst,ptSec,cantPre);
+    struct respBrebe*nnRB= new respBrebe(cod,inst,cantPre);
     if(P_RespBrebe==NULL)P_RespBrebe=nnRB;
     else
     {
@@ -408,6 +407,7 @@ void insertarPreguntaSU(string cod, string mate,string preg,int pts)
 {
     //preguntaSU(string cod, string mate,string preg,int pts)
     struct preguntaSU*nnPreSU=new preguntaSU(cod,mate,preg,pts);
+
     if(P_PreguntaSU==NULL)//si la lista esta vacia
         P_PreguntaSU=nnPreSU;
     else
@@ -556,17 +556,19 @@ void asignarRespuestaRB(string codPreRB)
 {
     struct preguntaRB *tempPreRB= buscarPreguntaRB(codPreRB);//ya visto en clase
     struct respuestasRB *tempResp = P_RespuestasRB;//ya visto en clase
-    while(tempResp!=NULL){
+    while(tempResp!=NULL)
+    {
         if((tempPreRB!=NULL)&&(tempResp->codigo==codPreRB))
-            {
-                struct listaRespuestasRB *nn= new listaRespuestasRB();
-                nn->enlaceRespuestasRB=tempResp;//se enlaza con el curso a matricular
-                nn->sig= tempPreRB->enlaceRespuestaRB;//se enlaza con la sublista ya existente del estudiante
-                tempPreRB->enlaceRespuestaRB=nn;// el nn pasa a ser el primer nodo de la sublista matricula
-            }
-            tempPreRB=tempPreRB->sig;
+        {
+            struct listaRespuestasRB *nn= new listaRespuestasRB();
+            nn->enlaceRespuestasRB=tempResp;//se enlaza con el curso a matricular
+            nn->sig= tempPreRB->enlaceRespuestaRB;//se enlaza con la sublista ya existente del estudiante
+            tempPreRB->enlaceRespuestaRB=nn;// el nn pasa a ser el primer nodo de la sublista matricula
+        }
+        tempPreRB=tempPreRB->sig;
     }
 }
+
 //************************************************************************************
 //*                              Impresiones varias                                        *
 //************************************************************************************
@@ -603,14 +605,11 @@ void pedirSeccionRC()
     cout<<"Ingrese en cabezado: "<<L;
     fflush( stdin );
     cin>>enc;
-    cout<<"Ingrese cuantos puntos vale la sección: "<<L;
-    fflush( stdin );
-    cin>>punSec;
     cout<<"Cantidad preguntas de la seccion: "<<L;
     fflush( stdin );
     cin>>cantPre;
     //(string cod,string inst,int ptSec,int cantPre)
-    insertarRB(cod,enc,punSec,cantPre);
+    insertarRB(cod,enc,cantPre);
 }
 
 void pedirSeccionSU()
@@ -623,14 +622,11 @@ void pedirSeccionSU()
     cout<<"Ingrese encabezado: "<<L;
     fflush( stdin );
     cin>>enc;
-    cout<<"Ingrese el puntaje de esta sección: "<<L;
-    fflush( stdin );
-    cin>>Cpun;
     cout<<"Ingrese la cantidad de preguntas de la seccion: "<<L;
     fflush( stdin );
     cin>>Cpre;
     //(string cod,string inst,int ptSec,int cantPre)
-    insertarSU(cod,enc,Cpun,Cpre);
+    insertarSU(cod,enc,Cpre);
 }
 
 void pedirSolucionRC()
@@ -688,33 +684,42 @@ void pedirSelecionUnica(string cod)
 //*                       Funciones de administracion de aplicacion                                        *
 //************************************************************************************
 
-void validarPuntosExamen(){
-
+void validarPuntosExamen()
+{
     struct examen*tempExamen = P_Examen; // Entramos a lista de Examenes
-    while(tempExamen!=NULL){
+    while(tempExamen!=NULL)
+    {
         struct listaSU*tempSU=tempExamen->enlaceSU;// Entramos a lista Seleccion Unica
-        while(tempSU!=NULL){
+        while(tempSU!=NULL)
+        {
             tempExamen->puntosObt+=tempSU->enlaceSU->puntosSeccion;
             struct listaPreguntasSU* tempPreSU = tempSU->enlaceSU->enlacePreSU; // Entramos a la lista preguntas Seleccion Unica
-            while(tempPreSU!=NULL){
-            tempSU->enlaceSU->puntosSeccion+=tempPreSU->enlacePreguntaSU->puntosPre;
-            tempPreSU=tempPreSU->sig;
+            while(tempPreSU!=NULL)
+            {
+                tempSU->enlaceSU->puntosSeccion+=tempPreSU->enlacePreguntaSU->puntosPre;
+                tempPreSU=tempPreSU->sig;
             }
-        tempSU=tempSU->sig;
+            tempExamen->puntosTotales+=tempSU->enlaceSU->puntosSeccion;
+            tempSU=tempSU->sig;
         }
         //
         struct listaRB*tempRB=tempExamen->enlaceRB;// Entramos a lista Seleccion Unica
-        while(tempRB!=NULL){
+        while(tempRB!=NULL)
+        {
             tempExamen->puntosObt+=tempRB->enlaceRB->puntosSeccion;
             struct listaPreguntasRB* tempPreRB = tempRB->enlaceRB->enlacePreRB; // Entramos a la lista preguntas Seleccion Unica
-            while(tempPreRB!=NULL){
-            tempRB->enlaceRB->puntosSeccion+=tempPreRB->enlacePreguntaRB->puntosPre;
-            tempPreRB=tempPreRB->sig;
+            while(tempPreRB!=NULL)
+            {
+                tempRB->enlaceRB->puntosSeccion+=tempPreRB->enlacePreguntaRB->puntosPre;
+                tempPreRB=tempPreRB->sig;
             }
-        tempRB=tempRB->sig;
+            tempExamen->puntosTotales+=tempRB->enlaceRB->puntosSeccion;
+            tempRB=tempRB->sig;
         }
-        tempExamen->sig=tempExamen;
+        //cout<<L<<"Puntos totales de examen ["<<tempExamen->codigo<<"] :"<<tempExamen->puntosTotales;
+        tempExamen=tempExamen->sig;
     }
+
 }
 
 void datosPredefinidos()
@@ -725,45 +730,46 @@ void datosPredefinidos()
     insertarExamen("Cie1S2016","Ciencias","25/09/2016",0.30);
     insertarExamen("Est1S2016","Estudios Sociales","25/09/2016",0.30);
     //Partes
-    insertarRB("RB-001","Responda lo que se le solicite de forma brebe y concisa. ",30,10);
-    insertarRB("RB-002","Responda lo que se le solicite de forma brebe y concisa. ",20,10);
-    insertarSU("SU-001","Responda lo que se le solicite de forma brebe y concisa. ",30,30);
-    insertarSU("SU-002","Responda lo que se le solicite de forma brebe y concisa. ",30,15);
+    insertarRB("RB-001","Responda lo que se le solicite de forma brebe y concisa. ",10);
+    insertarRB("RB-002","Responda lo que se le solicite de forma brebe y concisa. ",10);
+    insertarSU("SU-001","Responda lo que se le solicite de forma brebe y concisa. ",30);
+    insertarSU("SU-002","Responda lo que se le solicite de forma brebe y concisa. ",15);
     asignarRB("Mat1S2016","RB-001");
-    asignarRB("Esp1S2016","RB-002");
     asignarSU("Mat1S2016","SU-001");
+
+
+    asignarRB("Esp1S2016","RB-002");
     asignarSU("Esp1S2016","SU-002");
     //Preguntas SU
     insertarPreguntaSU("preSU001","Matematica","Pregunta n1",1);
-    insertarPreguntaSU("preSU002","Matematica","Pregunta n2",3);
-    insertarPreguntaSU("preSU003","Español","Pregunta n1",2);
-    insertarPreguntaSU("preSU004","Español","Pregunta n2",5);
-    insertarPreguntaSU("preSU005","Español","Pregunta n3",4);
-    insertarPreguntaSU("preSU006","Estudios Sociales","Pregunta n1",3);
-    insertarPreguntaSU("preSU007","Estudios Sociales","Pregunta n2",2);
-    insertarPreguntaSU("preSU008","Ciencias","Pregunta n1",5);
-    insertarPreguntaSU("preSU009","Ciencias","Pregunta n2",4);
+    insertarPreguntaSU("preSU002","Matematica","Pregunta n2",1);
+    insertarPreguntaSU("preSU003","Matematica","Pregunta n1",1);
+    insertarPreguntaSU("preSU004","Matematica","Pregunta n2",1);
+    insertarPreguntaSU("preSU005","Matematica","Pregunta n3",1);
+    insertarPreguntaSU("preSU006","Matematica","Pregunta n1",1);
+    insertarPreguntaSU("preSU007","Matematica","Pregunta n2",1);
+    insertarPreguntaSU("preSU008","Matematica","Pregunta n1",1);
+    insertarPreguntaSU("preSU009","Matematica","Pregunta n2",1);
     asignarPreguntaSU("SU-001","preSU001");
     asignarPreguntaSU("SU-001","preSU002");
-    asignarPreguntaSU("SU-001","preSU001");
-    asignarPreguntaSU("SU-002","preSU003");
-    asignarPreguntaSU("SU-002","preSU004");
-    asignarPreguntaSU("SU-002","preSU005");
-    asignarPreguntaSU("SU-002","preSU006");
+    asignarPreguntaSU("SU-001","preSU003");
+    asignarPreguntaSU("SU-001","preSU004");
+    asignarPreguntaSU("SU-001","preSU005");
+    asignarPreguntaSU("SU-001","preSU006");
+    asignarPreguntaSU("SU-001","preSU007");
+    asignarPreguntaSU("SU-001","preSU008");
+    asignarPreguntaSU("SU-001","preSU009");
     //Preguntas RB
     insertarPreguntaRB("preRB001","Matematica","Pregunta n1",1);
-    insertarPreguntaRB("preRB002","Matematica","Pregunta n2",3);
-    insertarPreguntaRB("preRB003","Español","Pregunta n3",2);
-    insertarPreguntaRB("preRB004","Ciencias","Pregunta n4",5);
-    insertarPreguntaRB("preRB005","Ciencias","Pregunta n5",4);
-    asignarPreguntaSU("RB-001","preRB001");
-    asignarPreguntaSU("RB-001","preRB002");
-    asignarPreguntaSU("RB-001","preRB001");
-    asignarPreguntaSU("RB-002","preRB003");
-    asignarPreguntaSU("RB-002","preRB004");
-    asignarPreguntaSU("RB-002","preRB005");
-    asignarPreguntaSU("RB-002","preRB006");
-    //
+    insertarPreguntaRB("preRB002","Matematica","Pregunta n2",1);
+    insertarPreguntaRB("preRB003","Matematica","Pregunta n3",1);
+    insertarPreguntaRB("preRB004","Matematica","Pregunta n4",1);
+    insertarPreguntaRB("preRB005","Matematica","Pregunta n5",1);
+    asignarPreguntaRB("RB-001","preRB001");
+    asignarPreguntaRB("RB-001","preRB002");
+    asignarPreguntaRB("RB-001","preRB003");
+    asignarPreguntaRB("RB-001","preRB004");
+    asignarPreguntaRB("RB-001","preRB005");
 
 
 }
@@ -841,18 +847,22 @@ void crearParteRC(struct examen*temp)
     }
 }
 
-void crearExamen(){
+void crearExamen()
+{
     cout<<L;
     pedirExamen();
     string eleccion = "", sN="s";
-    while(sN=="S"|sN=="s"){
+    while(sN=="S"|sN=="s")
+    {
         cout<<L<<"Insertando secciones\n[1] Selecion Unica\n[2] Respuesta Brebe\n";
         fflush( stdin );
         getline(cin,eleccion);
-        if(eleccion=="1"){
+        if(eleccion=="1")
+        {
             crearParteSU(P_Examen);
         }
-        else if(eleccion=="2"){
+        else if(eleccion=="2")
+        {
             crearParteRC(P_Examen);
         }
         cout<<"\mDesea agregar mas partes (s=Si o S=Si) o (n=No o N=No)";
@@ -860,46 +870,56 @@ void crearExamen(){
         cin>>sN;
     }
 }
-void modifiCarExamen(string code){
+
+void modifiCarExamen(string code)
+{
     struct examen*tem2 = P_Examen;
-    while(tem2->sig!=NULL){
+    while(tem2->sig!=NULL)
+    {
         cout<<"   Codigo: "<<tem2->codigo<<"   Materia: "<<tem2->materia<<"   Fecha: "<<tem2->fecha<<"   Porcentaje: "<<tem2->porcentaje;
         tem2=tem2->sig;
     }
     string x,f,c;
     float p;
     buscarExamen(code);
-    if(buscarExamen(code)!=NULL){
+    if(buscarExamen(code)!=NULL)
+    {
         cout<<"1.Fecha de ejecusion\n2.Porcentaje\n3.Codigo de examen\n4.Agragar una nueva parte";
         fflush( stdin );
         cin>>x;
-        if(x=="1"){
+        if(x=="1")
+        {
             cout<<"Ingrese la nueva Fecha: ";
             fflush( stdin );
             cin>>f;
             buscarExamen(code)->fecha=f;
         }
-        if(x=="2"){
+        if(x=="2")
+        {
             cout<<"Ingrese el nuevo Porcetaje: ";
             fflush( stdin );
             cin>>p;
             buscarExamen(code)->porcentaje=p;
         }
-        if(x=="3"){
+        if(x=="3")
+        {
             cout<<"Ingrese el nuevo Codigo: ";
             fflush( stdin );
             cin>>c;
             buscarExamen(code)->codigo=c;
         }
-        if(x=="4"){
+        if(x=="4")
+        {
             string eleccion = "", sN,respu;
             cout<<L<<"Insertando secciones\n[1] Selecion Unica\n[2] Respuesta Brebe\n";
             fflush( stdin );
             getline(cin,eleccion);
-            if(eleccion=="1"){
+            if(eleccion=="1")
+            {
                 crearParteSU(buscarExamen(code));
             }
-            else if(eleccion=="2"){
+            else if(eleccion=="2")
+            {
                 crearParteRC(buscarExamen(code));
             }
         }
@@ -910,18 +930,144 @@ void modifiCarExamen(string code){
 //*                        Funciones de Usuario estandard                            *
 //************************************************************************************
 
-void resolverExamen(string cod){
+void resolverExamen(string cod)
+{
 
+    struct examen*tempExamen = buscarExamen(cod);
+    struct listaSU*tempSU=tempExamen->enlaceSU;// Entramos a lista Seleccion Unica
+    while(tempSU!=NULL)
+    {
+        cout<<L<<tempSU->enlaceSU->instrucciones;
 
+        struct listaPreguntasSU* tempPreSU = tempSU->enlaceSU->enlacePreSU; // Entramos a la lista preguntas Seleccion Unica
+        while(tempPreSU!=NULL)
+        {
+            cout<<L<<tempPreSU->enlacePreguntaSU->pregunta;
+            for(int i=0;i<sizeof (tempPreSU->enlacePreguntaSU->respuestas[i]);i++){
+                cout<<"h"<<tempPreSU->enlacePreguntaSU->respuestas[i];
+            }
 
+            tempPreSU=tempPreSU->sig;
+        }
+        tempExamen->puntosTotales+=tempSU->enlaceSU->puntosSeccion;
+        tempSU=tempSU->sig;
+    }
+    //
+    struct listaRB*tempRB=tempExamen->enlaceRB;// Entramos a lista Seleccion Unica
+    while(tempRB!=NULL)
+    {
+        tempExamen->puntosObt+=tempRB->enlaceRB->puntosSeccion;
+
+        struct listaPreguntasRB* tempPreRB = tempRB->enlaceRB->enlacePreRB; // Entramos a la lista preguntas Seleccion Unica
+        while(tempPreRB!=NULL)
+        {
+            tempRB->enlaceRB->puntosSeccion+=tempPreRB->enlacePreguntaRB->puntosPre;
+
+            tempPreRB=tempPreRB->sig;
+        }
+        tempExamen->puntosTotales+=tempRB->enlaceRB->puntosSeccion;
+        tempRB=tempRB->sig;
+    }
 }
 
+void menuModificar(){
+
+    cout << "##  Modificar Examen  ##" << endl;
+
+    string codigo;
+
+    cout << "Digite el codigo del examen a modificar: " << endl;
+    cin >> codigo;
+
+    modifiCarExamen(codigo);
+
+    return;
+}
+
+
+void menuCrearExamen(){
+	cout << "## Menu Crear Examen ##" << endl;
+
+	bool ciclo = true;
+
+	while(ciclo == true){
+
+		char seleccion;
+
+		cout << "1. Crear Examen" << endl << "2. Editar Examen " << endl << "Digite la opcion deseada: " ;
+		cin >> seleccion;
+
+		if(seleccion == '1'){
+			cout << "\n";
+			ciclo = false;
+			crearExamen();
+			cout << "Examen Creado!!" << endl;
+		}
+
+		else if(seleccion == '2'){
+			cout << "\n";
+			ciclo = false;
+			menuModificar();
+			cout << "Examen modificado!!" << endl;
+		}
+
+		else{
+			cout << "Entrada invalida!!\n" << endl;
+		}
+	}
+
+	return;
+}
+
+void menuEvaluarExamen(){
+	cout << "## Menu Evaluar Examen ##" << endl;
+
+    //Llamar a la función Evaluar
+
+	return;
+}
+
+void menuPrincipal(){
+	cout << "## MENU PRINCIPAL ##\n" << endl;
+
+	bool ciclo = true;
+	while(ciclo == true){
+
+		char seleccion;
+
+		cout << "1. Crear Examen" << endl << "2. Evaluar Examen" << endl << "3. Salir" << endl << "Digite la opcion deseada: ";
+		cin >> seleccion;
+
+		if(seleccion == '1'){
+			cout << "\n";
+			ciclo = false;
+			menuCrearExamen();
+		}
+
+		else if(seleccion == '2'){
+			cout << "\n";
+			ciclo = false;
+			menuEvaluarExamen();
+		}
+
+		else if(seleccion == '3'){
+			cout << "\n";
+			return;
+		}
+
+		else{
+			cout << "Entrada invalida!!\n" << endl;
+		}
+	}
+
+	return menuPrincipal();
+}
 
 int main()
 {
     setlocale(LC_ALL, "spanish"); // Asigna lenguaje español como predeterminado.
     //preguntaSU(string cod, string mate,string preg,int pts)
-    datosPredefinidos();
+
     /*
     struct preguntaSU*temp=P_PreguntaSU;
     while(temp!=NULL)
@@ -933,6 +1079,7 @@ int main()
         temp=temp->sig;
     }
     */
+    /*
     string resp="respuesta";
     int digi = sizeof resp;
     struct respuestasRB*tempR = new respuestasRB("codigo",digi,resp);
@@ -941,5 +1088,10 @@ int main()
     cout<<L<<"Nota Asierto: "<<tempR->porcAsiertos;
     cout<<L<<"Contestada: "<<tempR->contestada;
     crearExamen();
+    */
+    //datosPredefinidos();
+    //validarPuntosExamen();
+    //resolverExamen("Mat1S2016");
+    menuPrincipal();
     return 0;
 }
