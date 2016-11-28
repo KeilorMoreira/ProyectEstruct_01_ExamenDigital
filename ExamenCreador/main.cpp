@@ -46,7 +46,12 @@ struct examen
     }
     void calificar()
     {
-        nota=puntosObt*100/puntosTotales;
+        if(puntosTotales!=0)nota=(puntosObt*100)/puntosTotales;
+        else if(puntosTotales<puntosObt){
+            nota=1;
+        }
+        else
+            {cout<<"No sumo";}
     }
 }*P_Examen;
 
@@ -738,7 +743,7 @@ void validarPuntosExamen()
             tempExamen->puntosTotales+=tempRB->enlaceRB->puntosSeccion;
             tempRB=tempRB->sig;
         }
-        //cout<<L<<"Puntos totales de examen ["<<tempExamen->codigo<<"] :"<<tempExamen->puntosTotales;
+        cout<<L<<"Puntos totales de examen ["<<tempExamen->codigo<<"] :"<<tempExamen->puntosTotales;
         tempExamen=tempExamen->sig;
     }
 
@@ -1176,7 +1181,7 @@ void resolverExamen(string cod)
                 {
                     tempPreSU->enlacePreguntaSU->correcto=true;
                     cout<<L<<"Correcto";
-                    tempSU->enlaceSU->puntosObt+=tempPreSU->enlacePreguntaSU->puntosPre; // sumar puntos a obtenidos
+                    tempSU->enlaceSU->puntosObt+=1; // sumar puntos a obtenidos
                 }
                 tempPreSU=tempPreSU->sig;
             }
@@ -1203,13 +1208,13 @@ void resolverExamen(string cod)
                     getline(cin,tempResp->RespuestasRB->buffer);
                     tempResp->RespuestasRB->validarRespuesta();
                     if(tempResp->RespuestasRB->contestada==true){
-                        cout<<"g";
+                        cout<<"Correcto";
                         tempPreRB->enlacePreguntaRB->puntosObt+=1;//ptsResp; // Sumo puntaje de la respuesta a la pregunta
                     }
 
                 tempResp=tempResp->sig;
                 }
-            tempRB->enlaceRB->puntosObt+=tempPreRB->enlacePreguntaRB->puntosObt; // sumar puntos a obtenidos a seccion
+            tempRB->enlaceRB->puntosObt=tempPreRB->enlacePreguntaRB->puntosObt; // asicna puntos a obtenidos a seccion
             tempPreRB=tempPreRB->sig;
             }
         tempRB=tempRB->sig;
@@ -1364,6 +1369,7 @@ int main()
 {
     setlocale(LC_ALL, "spanish"); // Asigna lenguaje español como predeterminado.
     datosPredefinidos();
+    validarPuntosExamen();
     menuPrincipal();
     return 0;
 }
